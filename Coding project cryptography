@@ -1,0 +1,50 @@
+!pip install pycryptodome
+
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+
+def encrypt(message, key):
+    # Generate a random initialization vector
+    iv = get_random_bytes(16)
+
+    # Create an AES cipher object
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+
+    # Pad the message to be a multiple of 16 bytes
+    padded_message = pad(message.encode('utf-8'), 16)
+
+    # Encrypt the padded message
+    ciphertext = cipher.encrypt(padded_message)
+
+    # Return the IV and ciphertext
+    return iv + ciphertext
+
+def decrypt(ciphertext, key):
+    # Extract the IV from the ciphertext
+    iv = ciphertext[:16]
+
+    # Create an AES cipher object
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+
+    # Decrypt the ciphertext
+    decrypted_message = cipher.decrypt(ciphertext[16:])
+
+    # Unpad the decrypted message
+    unpadded_message = unpad(decrypted_message, 16)
+
+    # Return the decrypted message
+    return unpadded_message.decode('utf-8')
+
+# Example usage
+key = get_random_bytes(32)  # 256-bit key for AES-256
+message = "This is a secret message."
+print("The message : This is a secret message.")
+
+# Encrypt the message
+encrypted_data = encrypt(message, key)
+print("Encrypted : ", encrypted_data)
+
+# Decrypt the message
+decrypted_message = decrypt(encrypted_data, key)
+print("Decrypted : ", decrypted_message)
